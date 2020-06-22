@@ -11,8 +11,6 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
 
     $sql = 'SELECT * FROM `ruche` WHERE `id` = :id;';
 
-    $sql = 'SELECT * FROM `infos` WHERE `id` = :id;';
-
     // On prépare la requête
     $query = $db->prepare($sql);
 
@@ -22,10 +20,10 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
     // On exécute la requête
     $query->execute();
 
-    // On récupère le produit
+    // On récupère la ruche
     $ruches = $query->fetch();
 
-    // On vérifie si le produit existe
+    // On vérifie si la ruche existe
     if (!$ruchess) {
         $_SESSION['erreur'] = "Cet id n'existe pas";
         header('Location: ruche.php');

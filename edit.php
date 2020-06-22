@@ -16,9 +16,7 @@ if ($_POST) {
         // On inclut la connexion à la base
         require_once('config/connect.php');
 
-
         // On nettoie les données envoyées
-
         $nom = strip_tags($_POST['nom']);
         $latitude = strip_tags($_POST['latitude']);
         $longitude = strip_tags($_POST['longitude']);
@@ -26,25 +24,59 @@ if ($_POST) {
         $temperature = strip_tags($_POST['temperature']);
         $humidite = strip_tags($_POST['humidite']);
 
-        $sql = 'INSERT INTO `ruche` (`nom`, `latitude`, `longitude`) VALUES (:nom, :latitude, :longitude);';
-        $sql = 'INSERT INTO `infos` (`nom`,`poids`, `temperature`, `humidite`) VALUES (:poids, :temperature, :humidite);';
+        $sql = 'UPDATE `ruche` SET `nom`= :nom, `latitude`=:latitude, `longitude`=:longitude WHERE `id`=:id;';
+        $sql = 'UPDATE `infos` SET `nom`= :nom, `poids`=:poids, `temperature`=:temperature, `humidite` = :humidite WHERE `id`=:id;';
 
         $query = $db->prepare($sql);
 
         $query->bindValue(':nom', $nom, PDO::PARAM_STR);
         $query->bindValue(':latitude', $latidude, PDO::PARAM_STR);
         $query->bindValue(':longitude', $longitude, PDO::PARAM_STR);
-
+        $query->bindValue(':poids', $poids, PDO::PARAM_STR);
+        $query->bindValue(':temperature', $poids, PDO::PARAM_STR);
+        $query->bindValue(':humidite', $poids, PDO::PARAM_STR);
 
         $query->execute();
 
-        $_SESSION['message'] = "Ruche ajouté";
+        $_SESSION['message'] = "Ruche modifié";
         require_once('close.php');
 
         header('Location: ruche.php');
     } else {
         $_SESSION['erreur'] = "Le formulaire est incomplet";
     }
+}
+
+// Est-ce que l'id existe et n'est pas vide dans l'URL
+if (isset($_GET['id']) && !empty($_GET['id'])) {
+    require_once('connect.php');
+
+    // On nettoie l'id envoyé
+    $id = strip_tags($_GET['id']);
+
+    $sql = 'SELECT * FROM `ruche` WHERE `id` = :id;';
+    $sql = 'SELECT * FROM `infos` WHERE `id` = :id;';
+
+    // On prépare la requête
+    $query = $db->prepare($sql);
+
+    // On "accroche" les paramètre (id)
+    $query->bindValue(':id', $id, PDO::PARAM_INT);
+
+    // On exécute la requête
+    $query->execute();
+
+    // On récupère la ruche
+    $ruche = $query->fetch();
+
+    // On vérifie si la ruche existe
+    if (!$ruche) {
+        $_SESSION['erreur'] = "Cet id n'existe pas";
+        header('Location: ruche.php');
+    }
+} else {
+    $_SESSION['erreur'] = "URL invalide";
+    header('Location: ruche.php');
 }
 
 ?>
@@ -54,8 +86,7 @@ if ($_POST) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ajouter une ruche</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Modifier une ruche</title>
 </head>
 
 <body>
@@ -83,6 +114,7 @@ if ($_POST) {
             </div>
         </div>
     </nav>
+
     <main class="container">
         <div class="row">
             <section class="col-12">
@@ -94,7 +126,7 @@ if ($_POST) {
                     $_SESSION['erreur'] = "";
                 }
                 ?>
-                <h1>Ajouter une ruche</h1>
+                <h1>Modifier une ruche</h1>
                 <div class="card-body">
                     <form method="post">
                         <div class="form-group">
@@ -138,6 +170,5 @@ if ($_POST) {
 
 include 'vue/footer.php';
 ?>
-
 
 </html>

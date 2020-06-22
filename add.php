@@ -134,5 +134,10 @@ if ($_POST) {
         </div>
     </main>
 </body>
+<?php
+
+include 'vue/footer.php';
+?>
+
 
 </html>
